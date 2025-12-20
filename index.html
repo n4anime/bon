@@ -187,12 +187,24 @@ body{
         async src="//gc.zgo.at/count.js"></script>
 
 <script>
-fetch("https://ir4kun.goatcounter.com/api/v0/stats/total")
-  .then(r => r.json())
-  .then(d => {
-    document.getElementById("visitCounter").textContent =
-      "عدد الزيارات: " + d.count;
-  });
+(() => {
+  const el = document.getElementById("visitCounter");
+  if (!el) return;
+
+  // غيّر "TOTAL" إلى window.location.pathname لو تبي عدّاد للصفحة فقط
+  const path = "TOTAL";
+  const url = "https://ir4kun.goatcounter.com/counter/" + encodeURIComponent(path) + ".json";
+
+  fetch(url)
+    .then(r => r.ok ? r.json() : Promise.reject(r.status))
+    .then(d => {
+      const n = (d && typeof d.count !== "undefined") ? d.count : 0;
+      el.textContent = "عدد الزيارات: " + n;
+    })
+    .catch(() => {
+      el.textContent = ""; // لو فشل (مثلاً AdBlock) نخليه فاضي
+    });
+})();
 </script>
 
 </body>
