@@ -11,7 +11,7 @@
 
 <style>
 *{box-sizing:border-box}
-a{color:inherit;text-decoration:none}
+a{text-decoration:none;color:inherit}
 
 body{
   margin:0;
@@ -34,15 +34,16 @@ body{
   flex-direction:row-reverse;
 }
 
-/* الصورة */
 .image-panel{
   flex:1.2;
   position:relative;
   min-height:420px;
   display:flex;
+  flex-direction:column;
   justify-content:center;
   align-items:center;
-  clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%);
+  gap:6px;
+  clip-path:polygon(0 0,100% 0,100% 100%,0 100%);
 }
 .image-panel::before{
   content:"";
@@ -56,8 +57,9 @@ body{
   content:"";
   position:absolute;
   inset:0;
-  background:rgba(0,0,0,.2);
+  background:rgba(0,0,0,.25);
 }
+
 .welcome{
   position:relative;
   z-index:1;
@@ -66,7 +68,14 @@ body{
   color:#fff;
 }
 
-/* المحتوى */
+.counter{
+  position:relative;
+  z-index:1;
+  font-size:14px;
+  color:#eee;
+  opacity:.9;
+}
+
 .info{
   flex:1;
   padding:34px;
@@ -106,7 +115,6 @@ body{
   gap:10px;
   justify-content:center;
 }
-
 .icon-btn{
   width:46px;
   height:46px;
@@ -115,9 +123,7 @@ body{
   display:flex;
   align-items:center;
   justify-content:center;
-  font-size:20px;
 }
-
 .chip{
   padding:10px 14px;
   border-radius:999px;
@@ -126,14 +132,13 @@ body{
   font-size:15px;
 }
 
-/* موبايل */
 @media (max-width:760px){
-  body{padding:14px; align-items:flex-start;}
-  .card{flex-direction:column;}
+  body{padding:14px;align-items:flex-start}
+  .card{flex-direction:column}
   .image-panel{
     min-height:230px;
     width:100%;
-    clip-path: polygon(0 0, 100% 0, 100% 100%, 0 74%);
+    clip-path:polygon(0 0,100% 0,100% 100%,0 74%);
   }
   .name{font-size:40px}
 }
@@ -145,6 +150,7 @@ body{
 
   <section class="image-panel">
     <div class="welcome">مرحبا بكم</div>
+    <div class="counter" id="visitCounter">—</div>
   </section>
 
   <section class="info">
@@ -160,19 +166,12 @@ body{
     </p>
 
     <div class="social">
-      <!-- أيقونات -->
       <a class="icon-btn" href="https://www.youtube.com/@BonSekai"><i class="fa-brands fa-youtube"></i></a>
       <a class="icon-btn" href="https://x.com/bon_sekai"><i class="fa-brands fa-x-twitter"></i></a>
       <a class="icon-btn" href="https://www.instagram.com/bon_sekai/"><i class="fa-brands fa-instagram"></i></a>
       <a class="icon-btn" href="https://www.tiktok.com/@bon_sekai"><i class="fa-brands fa-tiktok"></i></a>
       <a class="icon-btn" href="https://www.twitch.tv/bon_sekai"><i class="fa-brands fa-twitch"></i></a>
-      <a class="icon-btn" href="https://bonsekai.wordpress.com/"><i class="fa-brands fa-wordpress"></i></a>
-      <a class="icon-btn" href="https://bonsekai.tumblr.com/"><i class="fa-brands fa-tumblr"></i></a>
-      <a class="icon-btn" href="https://www.goodreads.com/user/show/11323733-bainah-m"><i class="fa-brands fa-goodreads-g"></i></a>
-      <a class="icon-btn" href="https://www.imdb.com/user/ur62929182/watchlist"><i class="fa-brands fa-imdb"></i></a>
-      <a class="icon-btn" href="https://www.flickr.com/photos/198926567@N08/with/53135581265"><i class="fa-brands fa-flickr"></i></a>
 
-      <!-- نصوص -->
       <a class="chip" href="https://backloggd.com/u/bon_sekai/">backloggd</a>
       <a class="chip" href="https://myanimelist.net/profile/bon_sekai">MyAnimeList</a>
       <a class="chip" href="https://mydramalist.com/profile/BnosH_77">MyDramaList</a>
@@ -184,13 +183,17 @@ body{
 
 </main>
 
-
-
 <script data-goatcounter="https://ir4kun.goatcounter.com/count"
         async src="//gc.zgo.at/count.js"></script>
 
-
-
+<script>
+fetch("https://ir4kun.goatcounter.com/api/v0/stats/total")
+  .then(r => r.json())
+  .then(d => {
+    document.getElementById("visitCounter").textContent =
+      "عدد الزيارات: " + d.count;
+  });
+</script>
 
 </body>
 </html>
