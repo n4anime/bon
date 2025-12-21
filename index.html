@@ -7,11 +7,15 @@
 
 <link rel="icon" href="https://i.suar.me/dp0gJ/l">
 <link href="https://fonts.googleapis.com/css2?family=Baloo+Bhaijaan+2:wght@400;700&display=swap" rel="stylesheet">
-<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
 
 <style>
 *{box-sizing:border-box}
 a{text-decoration:none;color:inherit}
+
+:root{
+  --noise-svg: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='180' height='180' filter='url(%23n)' opacity='.35'/%3E%3C/svg%3E");
+}
+
 
 body{
   margin:0;
@@ -29,7 +33,7 @@ body{
   background:#fff;
   border-radius:10px;
   overflow:hidden;
-  box-shadow:0 18px 45px rgba(0,0,0,.25);
+  box-shadow:none;
   display:flex;
   flex-direction:row-reverse;
 }
@@ -142,6 +146,81 @@ body{
   }
   .name{font-size:40px}
 }
+
+/* فيديو آخر مقطع */
+.video-box{margin-top:14px;text-align:right}
+.video-title{font-weight:700;font-size:14px;margin-bottom:8px}
+.video-frame{width:100%;border-radius:14px;overflow:hidden;background:#000}
+.video-frame iframe{width:100%;aspect-ratio:16/9;border:0;display:block}
+
+/* نافذة ترحيب الاسم */
+#nameOverlay{position:fixed;inset:0;background:rgba(0,0,0,.55);display:flex;align-items:center;justify-content:center;z-index:9999}
+.name-modal{width:min(420px,92vw);background:#fff;border-radius:16px;padding:18px;box-shadow:0 20px 60px rgba(0,0,0,.25)}
+.name-modal h3{margin:0 0 10px;font-size:18px}
+.name-modal p{margin:0 0 12px;color:#555;font-size:14px}
+.name-modal input{width:100%;padding:10px 12px;border:1px solid #ddd;border-radius:10px;font-family:inherit}
+.name-modal button{margin-top:10px;width:100%;padding:10px 12px;border:0;border-radius:10px;background:#00b5e2;color:#fff;font-weight:700;cursor:pointer}
+.name-modal button:active{transform:scale(.99)}
+
+
+
+/* اخفاء نافذة الاسم فعلياً عند وجود hidden */
+#nameOverlay[hidden]{display:none}
+
+/* نويز ذو لونين: للخلفية / للكرت / للأزرار */
+:root{--noise-url:url("data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A//www.w3.org/2000/svg%27%20width%3D%27180%27%20height%3D%27180%27%3E%0A%3Cfilter%20id%3D%27n%27%3E%3CfeTurbulence%20type%3D%27fractalNoise%27%20baseFrequency%3D%27.9%27%20numOctaves%3D%273%27%20stitchTiles%3D%27stitch%27/%3E%3C/filter%3E%0A%3Crect%20width%3D%27100%25%27%20height%3D%27100%25%27%20filter%3D%27url%28%2523n%29%27%20opacity%3D%27.45%27/%3E%0A%3C/svg%3E");}
+
+body{position:relative;}
+body::before{
+  content:"";
+  position:fixed;
+  inset:0;
+  z-index:-1;
+  background-image:
+    linear-gradient(135deg, rgba(245,81,95,.35), rgba(5,171,224,.35)),
+    var(--noise-url);
+  background-size:cover, 180px 180px;
+  mix-blend-mode:overlay;
+  opacity:.55;
+  pointer-events:none;
+}
+
+.card{position:relative;}
+.card::after{
+  content:"";
+  position:absolute;
+  inset:0;
+  border-radius:10px;
+  background-image:
+    linear-gradient(135deg, rgba(255,91,107,.18), rgba(6,169,220,.18)),
+    var(--noise-url);
+  background-size:cover, 180px 180px;
+  mix-blend-mode:overlay;
+  opacity:.7;
+  pointer-events:none;
+}
+
+.btn,.icon-btn,.chip{position:relative;overflow:hidden;}
+.btn::after,.icon-btn::after,.chip::after{
+  content:"";
+  position:absolute;
+  inset:0;
+  background-image:
+    linear-gradient(135deg, rgba(255,255,255,.18), rgba(0,0,0,.06)),
+    var(--noise-url);
+  background-size:cover, 120px 120px;
+  mix-blend-mode:overlay;
+  opacity:.75;
+  pointer-events:none;
+}
+
+/* دعم نفس ستايل الفيديو للـ video-wrap */
+.video-wrap{width:100%;border-radius:14px;overflow:hidden;background:#000}
+.video-wrap iframe{width:100%;aspect-ratio:16/9;border:0;display:block}
+
+/* ايقونات صور داخل الازرار */
+.icon-btn img{width:22px;height:22px;display:block}
+
 </style>
 </head>
 
@@ -149,61 +228,102 @@ body{
 <main class="card">
 
   <section class="image-panel">
-    <div class="welcome">مرحبا بكم</div>
-    <div class="counter" id="visitCounter">—</div>
+    <div class="welcome" id="welcomeText"></div>
+    <div class="counter" id="visitCounter">انت الزاير رقم (<span id="visitNum">—</span>) منورنا</div>
   </section>
 
   <section class="info">
     <h1 class="name">بون سيكاي</h1>
+      <div class="video-block" aria-label="أخر فيديوهاتي">
+        <div class="video-title">أخر فيديوهاتي</div>
+        <div class="video-frame">
+          <iframe id="ytFrame" width="300" height="180" src="https://www.youtube.com/embed/videoseries?list=UUVs_u3AXKTeXfaOiV0-SI6Q" frameborder="0" allowfullscreen></iframe>
+        </div>
+      </div>
 
-    <div class="btns">
-      <a class="btn follow" href="https://www.twitch.tv/bon_sekai">+ FOLLOW</a>
-      <span class="btn tag">BON SEKAI</span>
-    </div>
 
+    
     <p class="bio">
       نافذة على عالمي بين أفكاري ومشاعري وهواياتي ♡ من أنمي ومانجا وألعاب.. بروقان وهدوء.
     </p>
 
     <div class="social">
-      <a class="icon-btn" href="https://www.youtube.com/@BonSekai"><i class="fa-brands fa-youtube"></i></a>
-      <a class="icon-btn" href="https://x.com/bon_sekai"><i class="fa-brands fa-x-twitter"></i></a>
-      <a class="icon-btn" href="https://www.instagram.com/bon_sekai/"><i class="fa-brands fa-instagram"></i></a>
-      <a class="icon-btn" href="https://www.tiktok.com/@bon_sekai"><i class="fa-brands fa-tiktok"></i></a>
-      <a class="icon-btn" href="https://www.twitch.tv/bon_sekai"><i class="fa-brands fa-twitch"></i></a>
-
-      <a class="chip" href="https://backloggd.com/u/bon_sekai/">backloggd</a>
-      <a class="chip" href="https://myanimelist.net/profile/bon_sekai">MyAnimeList</a>
-      <a class="chip" href="https://mydramalist.com/profile/BnosH_77">MyDramaList</a>
-      <a class="chip" href="https://app.tvtime.com/user/4311035">TV Time</a>
-      <a class="chip" href="https://tip.dokan.sa/bonsekai">dokantip</a>
-      <a class="chip" href="https://tip.dokan.sa/bonsekai">dokan</a>
+      <a class="icon-btn" href="https://www.youtube.com/@BonSekai"><img src="https://n4anime.github.io/bon/icon/youtube.png" alt="رابط"></a>
+      <a class="icon-btn" href="https://x.com/bon_sekai"><img src="https://n4anime.github.io/bon/icon/x.png" alt="رابط"></a>
+      <a class="icon-btn" href="https://www.instagram.com/bon_sekai/"><img src="https://n4anime.github.io/bon/icon/instagram.png" alt="رابط"></a>
+      <a class="icon-btn" href="https://www.tiktok.com/@bon_sekai"><img src="https://n4anime.github.io/bon/icon/tiktok.png" alt="رابط"></a>
+      <a class="icon-btn" href="https://www.twitch.tv/bon_sekai"><img src="https://n4anime.github.io/bon/icon/twitch.png" alt="رابط"></a>
+      <a class="icon-btn" href="https://backloggd.com/u/bon_sekai/"><img src="https://n4anime.github.io/bon/icon/backloggd.png" alt="backloggd"></a>
+      <a class="icon-btn" href="https://myanimelist.net/profile/bon_sekai"><img src="https://n4anime.github.io/bon/icon/MAL.png" alt="MyAnimeList"></a>
+      <a class="icon-btn" href="https://mydramalist.com/profile/BnosH_77"><img src="https://n4anime.github.io/bon/icon/mdl.png" alt="MyDramaList"></a>
+      <a class="icon-btn" href="https://app.tvtime.com/user/4311035"><img src="https://n4anime.github.io/bon/icon/tvtime.png" alt="TV Time"></a>
+      <a class="icon-btn" href="https://tip.dokan.sa/bonsekai"><img src="https://n4anime.github.io/bon/icon/dokan.png" alt="dokantip"></a>
+      <a class="icon-btn" href="https://tip.dokan.sa/bonsekai"><img src="https://n4anime.github.io/bon/icon/dokan.png" alt="dokan"></a>
     </div>
   </section>
 
 </main>
+
+
+<div id="nameOverlay" hidden>
+  <div class="name-modal" role="dialog" aria-modal="true" aria-label="ترحيب">
+    <h3>مرحبا انا اسمي بون ماهو اسمك؟</h3>
+    <p>اكتب اسمك تحت، وبعدها بنرحب فيك.</p>
+    <input id="visitorName" type="text" placeholder="اكتب اسمك هنا" autocomplete="name">
+    <button id="saveNameBtn" type="button">دخول</button>
+  </div>
+</div>
 
 <script data-goatcounter="https://ir4kun.goatcounter.com/count"
         async src="//gc.zgo.at/count.js"></script>
 
 <script>
 (() => {
-  const el = document.getElementById("visitCounter");
-  if (!el) return;
+  // ===== ترحيب بالاسم =====
+  const overlay = document.getElementById("nameOverlay");
+  const input = document.getElementById("visitorName");
+  const btn = document.getElementById("saveNameBtn");
+  const welcome = document.getElementById("welcomeText");
 
-  // غيّر "TOTAL" إلى window.location.pathname لو تبي عدّاد للصفحة فقط
-  const path = "TOTAL";
-  const url = "https://ir4kun.goatcounter.com/counter/" + encodeURIComponent(path) + ".json";
+  const setWelcome = (name) => {
+    if (!welcome) return;
+    const h = new Date().getHours();
+    const isMorning = h >= 5 && h < 17;
+    welcome.textContent = (isMorning ? "صباح الخير يا " : "مساء الخير يا ") + name;
+  };
 
-  fetch(url)
-    .then(r => r.ok ? r.json() : Promise.reject(r.status))
-    .then(d => {
-      const n = (d && typeof d.count !== "undefined") ? d.count : 0;
-      el.textContent = "عدد الزيارات: " + n;
-    })
-    .catch(() => {
-      el.textContent = ""; // لو فشل (مثلاً AdBlock) نخليه فاضي
+  if (overlay) overlay.hidden = false;
+
+  if (btn) {
+    btn.addEventListener("click", () => {
+      const name = (input && input.value ? input.value : "").trim();
+      if (!name) return;
+      localStorage.setItem("bon_name", name);
+      if (overlay) overlay.hidden = true;
+      setWelcome(name);
     });
+  }
+
+  // Enter key submits name
+  if (input) {
+    input.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") {
+        e.preventDefault();
+        btn && btn.click();
+      }
+    });
+  }
+
+  // ===== عدّاد الزوار =====
+  const numEl = document.getElementById("visitNum");
+  if (numEl) {
+    const path = "TOTAL";
+    const url = "https://ir4kun.goatcounter.com/counter/" + encodeURIComponent(path) + ".json";
+    fetch(url)
+      .then(r => r.ok ? r.json() : Promise.reject(r.status))
+      .then(d => { numEl.textContent = (d && d.count) ? d.count : "0"; })
+      .catch(() => { numEl.textContent = "—"; });
+  }
 })();
 </script>
 
